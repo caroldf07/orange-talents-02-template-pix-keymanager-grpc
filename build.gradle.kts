@@ -1,7 +1,7 @@
 import com.google.protobuf.gradle.*
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.30"
-    id("org.jetbrains.kotlin.kapt") version "1.4.30"
+    id("org.jetbrains.kotlin.kapt") version "1.4.32"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.4.30"
     id("org.jetbrains.kotlin.plugin.jpa") version "1.4.30"
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -39,6 +39,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut.kafka:micronaut-kafka")
+    implementation("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
