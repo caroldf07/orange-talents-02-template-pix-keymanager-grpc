@@ -4,7 +4,9 @@ import br.com.zup.KeyManagerServiceGrpc
 import br.com.zup.NovaChavePixRequest
 import br.com.zup.NovaChavePixResponse
 import br.com.zup.pix.dominio.NovaChavePixDto
+import br.com.zup.pix.model.ChavePix
 import br.com.zup.pix.service.NovaChavePixService
+import br.com.zup.pix.toModel
 import io.grpc.stub.StreamObserver
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -24,7 +26,7 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService) :
 
         responseObserver.onNext(
             NovaChavePixResponse.newBuilder()
-                .setPixId(chaveCriada.pixId)
+                .setPixId(chaveCriada.pixId.toString())
                 .build()
         )
 
@@ -32,10 +34,6 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService) :
         responseObserver.onCompleted()
 
     }
-}
-
-private fun NovaChavePixRequest.toModel(): Any {
-
 }
 
 

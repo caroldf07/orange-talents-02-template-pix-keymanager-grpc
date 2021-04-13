@@ -8,10 +8,10 @@ data class DadosContaItauResponse(
     val titular: TitularResponse
 ) {
     fun toModel(): DadosContaItau {
-        return br.com.zup.sistemasExternos.model.DadosContaItau(
+        return DadosContaItau(
             instituicao = this.instituicao.nome,
             nomeTitular = this.titular.nome,
-            cpfDoTitular = this.titular.cpf,
+            cpfTitular = this.titular.cpf,
             agencia = this.agencia,
             numeroConta = this.numero
         )

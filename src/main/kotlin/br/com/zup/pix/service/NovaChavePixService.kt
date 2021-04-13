@@ -25,7 +25,8 @@ class NovaChavePixService(
     fun registra(@Valid novaChave: NovaChavePixDto): ChavePix {
         logger.info("Validando cliente")
 
-        val contaValidar: HttpResponse<DadosContaItauResponse> = itauClient.validaCliente(novaChave.identificadorItau)
+        val contaValidar: HttpResponse<DadosContaItauResponse> =
+            itauClient.validaCliente(novaChave.identificadorItau, novaChave.tipoConta!!.name)
 
         logger.info("Retorno obtido")
 

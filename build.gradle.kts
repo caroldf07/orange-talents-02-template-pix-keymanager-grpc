@@ -40,6 +40,7 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut.kafka:micronaut-kafka")
     implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut.xml:micronaut-jackson-xml")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")

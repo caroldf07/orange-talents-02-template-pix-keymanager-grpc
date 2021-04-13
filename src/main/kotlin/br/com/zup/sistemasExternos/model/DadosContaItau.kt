@@ -14,7 +14,7 @@ class DadosContaItau(
 
     @field:NotBlank
     @field:Size(max = 11)
-    val cpfDoTitular: String,
+    val cpfTitular: String,
 
     @field:NotBlank
     @field:Size(max = 4)
