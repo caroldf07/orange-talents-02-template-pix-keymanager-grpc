@@ -5,6 +5,7 @@ import br.com.zup.NovaChavePixRequest
 import br.com.zup.NovaChavePixResponse
 import br.com.zup.pix.dominio.NovaChavePixDto
 import br.com.zup.pix.model.ChavePix
+import br.com.zup.pix.repository.ChavePixRepository
 import br.com.zup.pix.service.NovaChavePixService
 import br.com.zup.pix.toModel
 import io.grpc.Status
@@ -15,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CriaNovaChavePixController(@Inject val service: NovaChavePixService) :
+class CriaNovaChavePixController(@Inject val service: NovaChavePixService, @Inject val repository: ChavePixRepository) :
     KeyManagerServiceGrpc.KeyManagerServiceImplBase() {
 
     private val logger = LoggerFactory.getLogger(CriaNovaChavePixController::class.java)
@@ -24,6 +25,8 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService) :
         logger.info("Nova solicitação recebida")
 
         val novaChave: NovaChavePixDto = request.toModel() //Transformando o que veio pelo gRPC em dto interno
+
+
         var chaveCriada: ChavePix? = null
 
         try {
