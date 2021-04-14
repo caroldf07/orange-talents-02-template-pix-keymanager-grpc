@@ -7,7 +7,9 @@ import br.com.zup.pix.dominio.NovaChavePixDto
 import br.com.zup.pix.model.ChavePix
 import br.com.zup.pix.service.NovaChavePixService
 import br.com.zup.pix.toModel
+import io.grpc.Status
 import io.grpc.stub.StreamObserver
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,11 +24,19 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService) :
         logger.info("Nova solicitação recebida")
 
         val novaChave: NovaChavePixDto = request.toModel() //Transformando o que veio pelo gRPC em dto interno
-        val chaveCriada: ChavePix = service.registra(novaChave)
+        var chaveCriada: ChavePix? = null
+
+        try {
+            chaveCriada = service.registra(novaChave)
+        } catch (e: HttpClientResponseException) {
+            var erro = Status.INVALID_ARGUMENT.withDescription("Cliente inexistente").asRuntimeException()
+            logger.warn("Erro na requisição")
+            responseObserver?.onError(erro)
+        }
 
         responseObserver.onNext(
             NovaChavePixResponse.newBuilder()
-                .setPixId(chaveCriada.pixId.toString())
+                .setPixId(chaveCriada!!.pixId.toString())
                 .build()
         )
 

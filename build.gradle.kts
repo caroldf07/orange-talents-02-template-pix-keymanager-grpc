@@ -29,6 +29,7 @@ dependencies {
     kapt("io.micronaut.data:micronaut-data-processor")
     implementation("io.micronaut:micronaut-runtime")
     implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator")
+    implementation("org.hibernate:hibernate-validator:6.1.6.Final")
     implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
     implementation("io.micronaut.grpc:micronaut-grpc-runtime")
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")

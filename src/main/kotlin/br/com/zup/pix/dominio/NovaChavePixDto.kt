@@ -1,5 +1,6 @@
 package br.com.zup.pix.dominio
 
+import br.com.zup.pix.compartilhado.KeyPixValida
 import br.com.zup.pix.model.ChavePix
 import br.com.zup.pix.model.TipoChaveEnum
 import br.com.zup.pix.model.TipoContaEnum
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Introspected
+@KeyPixValida
 data class NovaChavePixDto(
     @field:NotBlank
     val identificadorItau: String,

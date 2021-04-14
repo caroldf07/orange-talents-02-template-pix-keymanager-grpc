@@ -6,6 +6,8 @@ import br.com.zup.pix.repository.ChavePixRepository
 import br.com.zup.sistemasExternos.ItauClient
 import br.com.zup.sistemasExternos.model.DadosContaItau
 import br.com.zup.sistemasExternos.model.DadosContaItauResponse
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpResponse
 import io.micronaut.validation.Validated
 import org.slf4j.LoggerFactory
@@ -31,11 +33,14 @@ class NovaChavePixService(
         logger.info("Retorno obtido")
 
         val contaValidada: DadosContaItau =
-            contaValidar.body()?.toModel() ?: throw IllegalStateException("Cliente inexistente")
+            contaValidar.body()?.toModel()
+                ?: throw StatusRuntimeException(Status.INVALID_ARGUMENT.withDescription("Cliente inexistente"))
 
         val chave: ChavePix = novaChave.toModel(contaValidada)
 
         chavePixRepository.save(chave)
+
+        logger.info("Chave criada")
 
         return chave
 
