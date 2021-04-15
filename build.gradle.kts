@@ -1,4 +1,5 @@
 import com.google.protobuf.gradle.*
+
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.30"
     id("org.jetbrains.kotlin.kapt") version "1.4.32"
@@ -12,7 +13,7 @@ plugins {
 version = "0.1"
 group = "br.com.zup"
 
-val kotlinVersion=project.properties.get("kotlinVersion")
+val kotlinVersion = project.properties.get("kotlinVersion")
 repositories {
     mavenCentral()
 }
@@ -48,6 +49,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest")
     testImplementation("org.mockito:mockito-core")
     testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("com.h2database:h2")
 }
 
 
