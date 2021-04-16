@@ -10,6 +10,10 @@ class ProcuraExceptionHandlerRespectivo(@Inject private val listaHandlers: List<
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    private var defaultExceptionHandler: ExceptionHandler<Exception> =
+        DefaultExceptionHandler() //Caso seja captado um erro e não esteja mapeado na parte customizada, ele busca o padrão do sistema
+
+
     fun procura(e: Exception): ExceptionHandler<*> {
         logger.info("Procurando tratamento para o erro")
         val procuraHandlers: List<ExceptionHandler<*>> = listaHandlers.filter { it.supports(e) } /*Faz o filter das exceptions para verificar se
@@ -22,7 +26,7 @@ class ProcuraExceptionHandlerRespectivo(@Inject private val listaHandlers: List<
         }
 
         logger.info("Tratamento encontrado")
-        return procuraHandlers.first()
+        return procuraHandlers.firstOrNull() ?: defaultExceptionHandler
     }
 
 }

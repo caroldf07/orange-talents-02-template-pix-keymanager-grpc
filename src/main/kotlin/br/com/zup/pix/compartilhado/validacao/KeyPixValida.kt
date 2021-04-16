@@ -28,7 +28,7 @@ class KeyPixValidator : ConstraintValidator<KeyPixValida, NovaChavePixDto> {
             return false
         }
 
-        return value?.tipoChave.valida(value.valorChave)
+        return value.tipoChave.valida(value.valorChave)
     }
 
 }

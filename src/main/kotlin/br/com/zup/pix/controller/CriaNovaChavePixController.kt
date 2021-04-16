@@ -40,12 +40,13 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService, @Inje
         try {
             chaveCriada = service.registra(novaChave)
         } catch (e: HttpClientResponseException) {
+            logger.error("Erro na busca")
             throw ClienteInexistenteException("Cliente inexistente")
         }
 
         responseObserver.onNext(
             NovaChavePixResponse.newBuilder()
-                .setPixId(chaveCriada!!.pixId.toString())
+                .setPixId(chaveCriada.pixId.toString())
                 .build()
         )
 
