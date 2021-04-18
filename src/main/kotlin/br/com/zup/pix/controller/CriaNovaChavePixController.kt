@@ -27,7 +27,6 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService, @Inje
     override fun criaChavePix(request: NovaChavePixRequest, responseObserver: StreamObserver<NovaChavePixResponse>) {
         logger.info("Nova solicitação recebida")
 
-
         val novaChave: NovaChavePixDto = request.toModel() //Transformando o que veio pelo gRPC em dto interno
 
         if (repository.existsByValorChave(novaChave.valorChave)) {

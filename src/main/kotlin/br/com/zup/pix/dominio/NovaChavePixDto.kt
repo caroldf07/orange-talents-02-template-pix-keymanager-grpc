@@ -1,7 +1,6 @@
 package br.com.zup.pix.dominio
 
 import br.com.zup.pix.compartilhado.KeyPixValida
-import br.com.zup.pix.compartilhado.handler.ErrorHandler
 import br.com.zup.pix.model.ChavePix
 import br.com.zup.pix.model.TipoChaveEnum
 import br.com.zup.pix.model.TipoContaEnum
