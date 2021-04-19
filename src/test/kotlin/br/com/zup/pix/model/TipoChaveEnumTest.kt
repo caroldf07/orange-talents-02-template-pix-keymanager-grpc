@@ -165,10 +165,9 @@ internal class TipoChaveEnumTest {
 
             //ação
             with(TipoChaveEnum.ALEATORIA) {
+                //validação
                 assertFalse(valida(chave = "string qualquer"))
             }
-
-            //validação
         }
     }
 }
