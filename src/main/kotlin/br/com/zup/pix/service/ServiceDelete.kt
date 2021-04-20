@@ -16,7 +16,7 @@ class ServiceDelete(@Inject val repository: ChavePixRepository) {
     private val logger = LoggerFactory.getLogger(ServiceDelete::class.java)
 
     @Transactional
-    fun procuraChaveDelete(@NotBlank pixId: String?, @NotBlank identificadorItau: String?) {
+    fun procuraChaveDelete(@NotBlank pixId: String, @NotBlank identificadorItau: String) {
         logger.info("Procurando chave informada")
 
         val chaveInformada =

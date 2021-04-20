@@ -40,7 +40,8 @@ import javax.inject.Inject
 * 4 - Client do Itaú não encontra a chave
 * */
 
-@MicronautTest(transactional = false)// Quando estamos trabalhando com servidor gRPC, ele roda em uma thread separada e, portanto, não participa a cada chamada do teste o que pode trazer problemas, por isso desligamos o transactional
+@MicronautTest(transactional = false)// Quando estamos trabalhando com servidor gRPC,
+// ele roda em uma thread separada e, portanto, não participa a cada chamada do teste complicando tanto a instância do banco como gerando falsos positivos
 internal class CriaNovaChavePixControllerTest(
     val repository: ChavePixRepository,
     val grpcClient: KeyManagerServiceBlockingStub
@@ -111,8 +112,10 @@ internal class CriaNovaChavePixControllerTest(
 
         val existente = repository.save(
             ChavePix(
-                IDENTIFICADORITAU, CPF, "06628726061", CONTA_CORRENTE,
-                dadosContaItauResponse.toModel()
+                identificadorItau = IDENTIFICADORITAU,
+                tipoChave = CPF,
+                valorChave = "06628726061",
+                tipoConta = CONTA_CORRENTE, conta = dadosContaItauResponse.toModel()
             )
         )
         //ação
