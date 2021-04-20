@@ -29,27 +29,31 @@ micronaut {
 dependencies {
     kapt("io.micronaut.data:micronaut-data-processor")
     implementation("io.micronaut:micronaut-runtime")
+    //JPA e Banco
     implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator")
     implementation("org.hibernate:hibernate-validator:6.1.6.Final")
     implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+    implementation("io.micronaut.sql:micronaut-hibernate-jpa")
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    implementation("io.micronaut:micronaut-validation")
+    runtimeOnly("org.postgresql:postgresql")
+    //runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    testImplementation("com.h2database:h2")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+
     implementation("io.micronaut.grpc:micronaut-grpc-runtime")
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.netflix:micronaut-netflix-hystrix")
-    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
-    implementation("javax.annotation:javax.annotation-api")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
-    implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut.kafka:micronaut-kafka")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.xml:micronaut-jackson-xml")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     testImplementation("org.hamcrest:hamcrest")
     testImplementation("org.mockito:mockito-core")
     testImplementation("io.micronaut:micronaut-http-client")
-    testImplementation("com.h2database:h2")
 }
 
 

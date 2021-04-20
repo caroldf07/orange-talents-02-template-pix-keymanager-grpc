@@ -12,6 +12,11 @@ service KeyManagerService {
   rpc criaChavePix(NovaChavePixRequest) returns (NovaChavePixResponse){}
 }
 
+service KeyManagerDeleteService{
+  rpc deletaChavePix(ChavePixRequest) returns (ChavePixResponse){}
+
+}
+
 message KeyManagerRequest {
   string name = 1;
 }
@@ -46,4 +51,13 @@ message NovaChavePixRequest{
 
 message NovaChavePixResponse{
   string pixId = 1;
+}
+
+message ChavePixRequest{
+  string pixId = 1;
+  string identificadorItau = 2;
+}
+
+message ChavePixResponse{
+  string status = 1;
 }

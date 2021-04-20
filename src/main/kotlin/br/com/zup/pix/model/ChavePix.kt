@@ -30,5 +30,5 @@ class ChavePix(
 ) {
     @Id
     @GeneratedValue
-    val pixId: UUID? = null
+    val id: UUID? = null
 }

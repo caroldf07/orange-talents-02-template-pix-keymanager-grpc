@@ -12,6 +12,7 @@ import io.micronaut.validation.Validated
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.transaction.Transactional
 import javax.validation.Valid
 
 @Singleton
@@ -22,6 +23,7 @@ class NovaChavePixService(
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
+    @Transactional
     fun registra(@Valid novaChave: NovaChavePixDto): ChavePix {
         logger.info("Validando cliente")
 
