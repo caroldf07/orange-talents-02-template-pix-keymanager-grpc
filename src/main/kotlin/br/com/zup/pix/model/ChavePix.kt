@@ -18,7 +18,7 @@ class ChavePix(
 
     @field:NotBlank
     @field:Column(unique = true)
-    val valorChave: String,
+    var valorChave: String,
 
     @field:NotNull
     @field:Enumerated(EnumType.STRING)

@@ -8,7 +8,7 @@ import br.com.zup.pix.model.ChavePix
 import br.com.zup.pix.model.TipoChaveEnum.CPF
 import br.com.zup.pix.model.TipoContaEnum.CONTA_CORRENTE
 import br.com.zup.pix.repository.ChavePixRepository
-import br.com.zup.sistemasExternos.ItauClient
+import br.com.zup.sistemasExternos.client.ItauClient
 import br.com.zup.sistemasExternos.model.DadosContaItauResponse
 import br.com.zup.sistemasExternos.model.InstituicaoResponse
 import br.com.zup.sistemasExternos.model.TitularResponse

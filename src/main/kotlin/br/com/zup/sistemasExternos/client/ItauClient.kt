@@ -1,4 +1,4 @@
-package br.com.zup.sistemasExternos
+package br.com.zup.sistemasExternos.client
 
 import br.com.zup.sistemasExternos.model.DadosContaItauResponse
 import io.micronaut.http.HttpResponse
@@ -13,7 +13,7 @@ import io.micronaut.retry.annotation.Retryable
 interface ItauClient {
 
     @Get(
-        "api/v1/clientes/{clienteId}/contas",
+        value = "api/v1/clientes/{clienteId}/contas",
         produces = [MediaType.APPLICATION_JSON],
         consumes = [MediaType.APPLICATION_JSON]
     )

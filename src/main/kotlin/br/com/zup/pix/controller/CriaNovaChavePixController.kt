@@ -20,7 +20,10 @@ import javax.inject.Singleton
 //carga total 10
 @ErrorHandler //Annotation criada para que a ExceptionInterceptor funcione da maneira planejada
 @Singleton
-class CriaNovaChavePixController(@Inject val service: NovaChavePixService, @Inject val repository: ChavePixRepository) :
+class CriaNovaChavePixController(
+    @Inject val service: NovaChavePixService,
+    @Inject val repository: ChavePixRepository
+) :
     KeyManagerServiceGrpc.KeyManagerServiceImplBase() {
 
     private val logger = LoggerFactory.getLogger(CriaNovaChavePixController::class.java)
@@ -47,7 +50,6 @@ class CriaNovaChavePixController(@Inject val service: NovaChavePixService, @Inje
         } catch (e: HttpClientResponseException) {
             throw ClienteInexistenteException("Cliente inexistente")
         }
-
         responseObserver.onNext(
             NovaChavePixResponse.newBuilder()
                 .setPixId(chaveCriada.id.toString())
