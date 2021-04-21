@@ -28,6 +28,11 @@ class ChavePix(
     @field:Embedded
     val conta: DadosContaItau
 ) {
+    fun chaveAleatoria(key: String): ChavePix {
+        this.valorChave = key
+        return ChavePix(this.identificadorItau, this.tipoChave, valorChave, this.tipoConta, this.conta)
+    }
+
     @Id
     @GeneratedValue
     val id: UUID? = null

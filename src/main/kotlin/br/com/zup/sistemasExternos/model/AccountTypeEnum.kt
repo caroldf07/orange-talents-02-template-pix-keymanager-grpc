@@ -2,7 +2,16 @@ package br.com.zup.sistemasExternos.model
 
 import br.com.zup.pix.model.TipoContaEnum
 
-enum class AccountTypeEnum(val tipoContaEnum: TipoContaEnum) {
-    CACC(TipoContaEnum.CONTA_CORRENTE),
-    SVGS(TipoContaEnum.CONTA_POUPANCA)
+enum class AccountTypeEnum {
+    CACC,
+    SVGS;
+
+    companion object {
+        fun by(tipoContaEnum: TipoContaEnum): AccountTypeEnum {
+            return when (tipoContaEnum) {
+                TipoContaEnum.CONTA_CORRENTE -> CACC
+                else -> SVGS
+            }
+        }
+    }
 }

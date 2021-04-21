@@ -49,6 +49,7 @@ class NovaChavePixService(
         logger.info("Retorno obtido")
 
         val chave: ChavePix = novaChave.toModel(contaValidada)
+        chave.chaveAleatoria(chaveCadastradaBcb.key)
 
         chavePixRepository.save(chave)
 

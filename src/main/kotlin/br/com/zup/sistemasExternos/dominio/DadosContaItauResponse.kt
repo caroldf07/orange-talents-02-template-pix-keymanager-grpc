@@ -1,6 +1,7 @@
 package br.com.zup.sistemasExternos.model
 
 import br.com.zup.pix.dominio.NovaChavePixDto
+import br.com.zup.pix.model.TipoContaEnum
 import br.com.zup.sistemasExternos.dominio.BankAccountRequest
 import br.com.zup.sistemasExternos.dominio.BcbRequest
 import br.com.zup.sistemasExternos.dominio.OwnerRequest
@@ -24,13 +25,13 @@ data class DadosContaItauResponse(
 
     fun toBcbRequest(novaChavePixDto: NovaChavePixDto): BcbRequest {
         return BcbRequest(
-            keyType = KeyTypeEnum.valueOf(novaChavePixDto.tipoChave!!.name),
+            keyType = KeyTypeEnum.by(novaChavePixDto.tipoChave!!),
             key = novaChavePixDto.valorChave.toString(),
             BankAccountRequest(
                 participant = this.instituicao.ispb,
                 branch = this.agencia,
                 accountNumber = this.numero,
-                accountType = AccountTypeEnum.valueOf(this.tipo)
+                accountType = AccountTypeEnum.by(TipoContaEnum.valueOf(this.tipo))
             ),
             OwnerRequest(
                 type = TypeEnum.NATURAL_PERSON,

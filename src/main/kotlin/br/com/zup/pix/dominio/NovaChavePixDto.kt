@@ -27,8 +27,7 @@ data class NovaChavePixDto(
         return ChavePix(
             identificadorItau = UUID.fromString(this.identificadorItau),
             tipoChave = TipoChaveEnum.valueOf(this.tipoChave!!.name),
-            valorChave = if (this.tipoChave == TipoChaveEnum.ALEATORIA) UUID.randomUUID()
-                .toString() else this.valorChave!!,
+            valorChave = if (this.tipoChave == TipoChaveEnum.ALEATORIA) "" else this.valorChave!!,
             tipoConta = TipoContaEnum.valueOf(this.tipoConta!!.name),
             conta = contaValidada
         )
