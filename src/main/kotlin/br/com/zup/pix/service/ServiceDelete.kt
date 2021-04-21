@@ -32,7 +32,7 @@ class ServiceDelete(@Inject val repository: ChavePixRepository, @Inject val bcbC
         bcbClient.deletaChavePix(
             chaveInformada.valorChave,
             BcbDeleteRequest(key = chaveInformada.valorChave, participant = "60701190")
-        ).body() ?: IllegalStateException("Algo deu errado")
+        ).body() ?: throw IllegalStateException("Algo deu errado")
 
         repository.delete(chaveInformada)
 
