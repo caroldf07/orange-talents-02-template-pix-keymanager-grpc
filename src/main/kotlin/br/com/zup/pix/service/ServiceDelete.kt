@@ -2,6 +2,8 @@ package br.com.zup.pix.service
 
 import br.com.zup.pix.compartilhado.exception.ChavePixNaoExistenteException
 import br.com.zup.pix.repository.ChavePixRepository
+import br.com.zup.sistemasExternos.client.BcbClient
+import br.com.zup.sistemasExternos.dominio.BcbDeleteRequest
 import io.micronaut.validation.Validated
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -12,7 +14,7 @@ import javax.validation.constraints.NotBlank
 
 @Validated
 @Singleton
-class ServiceDelete(@Inject val repository: ChavePixRepository) {
+class ServiceDelete(@Inject val repository: ChavePixRepository, @Inject val bcbClient: BcbClient) {
     private val logger = LoggerFactory.getLogger(ServiceDelete::class.java)
 
     @Transactional
@@ -26,6 +28,11 @@ class ServiceDelete(@Inject val repository: ChavePixRepository) {
                 }
 
         logger.info("Procura concluída")
+
+        bcbClient.deletaChavePix(
+            chaveInformada.valorChave,
+            BcbDeleteRequest(key = chaveInformada.valorChave, participant = "60701190")
+        ).body() ?: IllegalStateException("Algo deu errado")
 
         repository.delete(chaveInformada)
 
