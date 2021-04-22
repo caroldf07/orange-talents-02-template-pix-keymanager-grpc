@@ -23,16 +23,17 @@ class ServiceDelete(@Inject val repository: ChavePixRepository, @Inject val bcbC
 
         val chaveInformada =
             repository.findByIdAndIdentificadorItau(UUID.fromString(pixId), UUID.fromString(identificadorItau))
+                .also { logger.info("Solicitação concluída") }
                 .orElseThrow {
                     ChavePixNaoExistenteException("A chave informada não existe ou não pertence ao cliente")
-                }
+                }.also { logger.error("Erro na requisição") }
 
         logger.info("Procura concluída")
 
         bcbClient.deletaChavePix(
             chaveInformada.valorChave,
             BcbDeleteRequest(key = chaveInformada.valorChave, participant = "60701190")
-        ).body() ?: throw IllegalStateException("Algo deu errado")
+        ).body() ?: throw IllegalStateException("Algo deu errado").also { logger.error("Erro na requisição") }
 
         repository.delete(chaveInformada)
 

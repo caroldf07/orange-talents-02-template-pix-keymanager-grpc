@@ -12,9 +12,7 @@ import io.micronaut.retry.annotation.Retryable
 @Client("\${sistemaExterno.bcb.url}")
 interface BcbClient {
 
-    @Post
-    @Consumes(*[MediaType.APPLICATION_XML])
-    @Produces(*[MediaType.APPLICATION_XML])
+    @Post(produces = [MediaType.APPLICATION_XML], consumes = [MediaType.APPLICATION_XML])
     @Retryable
     fun cadastraChavePix(@Body bcbRequest: BcbRequest): HttpResponse<BcbResponse>
 

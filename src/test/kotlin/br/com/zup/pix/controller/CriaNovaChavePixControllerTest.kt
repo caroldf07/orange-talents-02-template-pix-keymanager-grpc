@@ -5,13 +5,18 @@ import br.com.zup.KeyManagerServiceGrpc.KeyManagerServiceBlockingStub
 import br.com.zup.NovaChavePixRequest.*
 import br.com.zup.NovaChavePixResponse
 import br.com.zup.pix.model.ChavePix
-import br.com.zup.pix.model.TipoChaveEnum.CPF
-import br.com.zup.pix.model.TipoContaEnum.CONTA_CORRENTE
+import br.com.zup.pix.model.TipoChaveEnum
+import br.com.zup.pix.model.TipoContaEnum
 import br.com.zup.pix.repository.ChavePixRepository
+import br.com.zup.sistemasExternos.client.BcbClient
 import br.com.zup.sistemasExternos.client.ItauClient
-import br.com.zup.sistemasExternos.model.DadosContaItauResponse
-import br.com.zup.sistemasExternos.model.InstituicaoResponse
-import br.com.zup.sistemasExternos.model.TitularResponse
+import br.com.zup.sistemasExternos.dominio.BankAccountRequest
+import br.com.zup.sistemasExternos.dominio.BcbRequest
+import br.com.zup.sistemasExternos.dominio.BcbResponse
+import br.com.zup.sistemasExternos.dominio.OwnerRequest
+import br.com.zup.sistemasExternos.model.AccountTypeEnum
+import br.com.zup.sistemasExternos.model.KeyTypeEnum
+import br.com.zup.sistemasExternos.model.TypeEnum
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -30,14 +35,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
 /*
 * 1 - Happy path - ok
-* 2 - Chave já cadastrada - ok
-* 3 - Qualquer campo inválido - ok
-* 4 - Client do Itaú não encontra a chave
+* 2 - Chave já cadastrada no Itaú
+* 3 - Chave já cadastrada no Bcb
+* 4 - Qualquer campo inválido - ok
+* 5 - Client do Itaú não encontra a chave
+* 6 - Client do Bcb não encontra a chave
 * */
 
 @MicronautTest(transactional = false)// Quando estamos trabalhando com servidor gRPC,
@@ -48,24 +56,39 @@ internal class CriaNovaChavePixControllerTest(
 ) {
 
     companion object {
-        val IDENTIFICADORITAU = UUID.randomUUID()
+        val IDENTIFICADORITAU = UUID.randomUUID().toString()
     }
+
+    val TIPO_CONTA = TipoContaEnum.CONTA_CORRENTE.toString()
 
     @Inject
     lateinit var itauClient: ItauClient
 
+    @Inject
+    lateinit var bcbClient: BcbClient
+
     private val dadosContaItauResponse =
-        DadosContaItauResponse(
+        br.com.zup.sistemasExternos.model.DadosContaItauResponse(
             tipo = "CONTA_CORRENTE",
-            InstituicaoResponse(nome = "ITAÚ UNIBANCO S.A.", ispb = "60701190"),
+            instituicao = br.com.zup.sistemasExternos.model.InstituicaoResponse(
+                nome = "ITAÚ UNIBANCO S.A.",
+                ispb = "60701190"
+            ),
             agencia = "0001",
             numero = "212233",
-            TitularResponse(nome = "Alberto Tavares", cpf = "06628726061")
+            titular = br.com.zup.sistemasExternos.model.TitularResponse(nome = "Alberto Tavares", cpf = "06628726061")
         )
+
+    private val bcbResponse = BcbResponse(key = "06628726061", createdAt = LocalDateTime.now())
 
     @MockBean(ItauClient::class) //mockamos a chamada para o cliente externo, pois as vezes pode demorar demais a chamada ou então fazer algum tipo de registro que, no momento do teste, não é para acontecer
     fun validaCliente(): ItauClient? {
         return mock(ItauClient::class.java)
+    }
+
+    @MockBean(BcbClient::class)
+    fun cadastraChavePix(): BcbClient? {
+        return mock(BcbClient::class.java)
     }
 
     @BeforeEach
@@ -80,18 +103,34 @@ internal class CriaNovaChavePixControllerTest(
 
         `when`(
             itauClient.validaCliente(
-                identificadorItau = IDENTIFICADORITAU.toString(),
-                tipo = "CONTA_CORRENTE"
+                identificadorItau = IDENTIFICADORITAU,
+                tipo = TIPO_CONTA
             )
         ).thenReturn(
             HttpResponse.ok(dadosContaItauResponse)
         )
 
+        `when`(
+            bcbClient.cadastraChavePix(
+                BcbRequest(
+                    keyType = KeyTypeEnum.CPF,
+                    key = "06628726061",
+                    BankAccountRequest(
+                        participant = "60701190",
+                        branch = "0001",
+                        accountType = AccountTypeEnum.CACC,
+                        accountNumber = "212233"
+                    ),
+                    OwnerRequest(type = TypeEnum.NATURAL_PERSON, name = "Alberto Tavares", taxIdNumber = "06628726061")
+                )
+            )
+        ).thenReturn(HttpResponse.created(bcbResponse))
+
         //ação
         val response: NovaChavePixResponse = grpcClient.criaChavePix(
             //Estamos simulando o envio de uma requisição, igual fazemos via Bloom
             newBuilder()
-                .setIdentificadorItau(IDENTIFICADORITAU.toString())
+                .setIdentificadorItau(IDENTIFICADORITAU)
                 .setTipoChave(TipoChave.CPF)
                 .setValorChave("06628726061")
                 .setTipoConta(TipoConta.CONTA_CORRENTE)
@@ -106,22 +145,22 @@ internal class CriaNovaChavePixControllerTest(
     }
 
     @Test
-    @DisplayName("não deve adicionar nova chave quando chave já existente")
-    fun `não deve adicionar nova chave quando chave já existente`() {
+    @DisplayName("não deve adicionar nova chave quando chave já existente no nosso sistema")
+    fun `não deve adicionar nova chave quando chave já existente no nosso sistema`() {
         //cenário
 
         val existente = repository.save(
             ChavePix(
-                identificadorItau = IDENTIFICADORITAU,
-                tipoChave = CPF,
+                identificadorItau = UUID.fromString(IDENTIFICADORITAU),
+                tipoChave = TipoChaveEnum.CPF,
                 valorChave = "06628726061",
-                tipoConta = CONTA_CORRENTE, conta = dadosContaItauResponse.toModel()
+                tipoConta = TipoContaEnum.CONTA_CORRENTE, conta = dadosContaItauResponse.toModel()
             )
         )
         //ação
         val erro = assertThrows<StatusRuntimeException> {
             grpcClient.criaChavePix(
-                newBuilder().setIdentificadorItau(IDENTIFICADORITAU.toString())
+                newBuilder().setIdentificadorItau(IDENTIFICADORITAU)
                     .setTipoConta(TipoConta.CONTA_CORRENTE)
                     .setTipoChave(TipoChave.CPF)
                     .setValorChave(existente.valorChave)
@@ -162,7 +201,7 @@ internal class CriaNovaChavePixControllerTest(
     fun `não deve adicionar nova chave quando não encontra o cliente no Itaú`() {
         //cenário
 
-        `when`(itauClient.validaCliente(identificadorItau = "1", tipo = "CONTA_CORRENTE")).thenThrow(
+        `when`(itauClient.validaCliente(identificadorItau = "1", tipo = TIPO_CONTA)).thenThrow(
             HttpClientResponseException::class.java
         )
 
@@ -180,6 +219,48 @@ internal class CriaNovaChavePixControllerTest(
         //validação
         assertEquals(Status.INVALID_ARGUMENT.code, erro.status.code)
         assertTrue(erro.message!!.contains("Cliente inexistente"))
+    }
+
+    @Test
+    @DisplayName("não deve adicionar nova chave quando já cadastrada no bcb")
+    fun `"não deve adicionar nova chave quando já cadastrada no bcb"`() {
+        //cenário
+
+        `when`(itauClient.validaCliente(IDENTIFICADORITAU, TIPO_CONTA)).thenReturn(
+            HttpResponse.ok(
+                dadosContaItauResponse
+            )
+        )
+
+        `when`(
+            bcbClient.cadastraChavePix(
+                BcbRequest(
+                    keyType = KeyTypeEnum.CPF,
+                    key = "06628726061",
+                    BankAccountRequest(
+                        participant = "60701190",
+                        branch = "0001",
+                        accountType = AccountTypeEnum.CACC,
+                        accountNumber = "212233"
+                    ),
+                    OwnerRequest(type = TypeEnum.NATURAL_PERSON, name = "Alberto Tavares", taxIdNumber = "06628726061")
+                )
+            )
+        ).thenReturn(HttpResponse.unprocessableEntity())
+        //ação
+        val response = assertThrows<StatusRuntimeException> {
+            grpcClient.criaChavePix(
+                newBuilder()
+                    .setIdentificadorItau(IDENTIFICADORITAU)
+                    .setTipoChave(TipoChave.CPF)
+                    .setValorChave("06628726061")
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build()
+            )
+        }
+        //validação
+        assertEquals(Status.ALREADY_EXISTS.code, response.status.code)
+        assertTrue(response.message!!.contains("Chave já registrada"))
     }
 
     /*Aqui nós fabricamos o nosso client para que possamos testar a integração para a requisição no gRPC.
