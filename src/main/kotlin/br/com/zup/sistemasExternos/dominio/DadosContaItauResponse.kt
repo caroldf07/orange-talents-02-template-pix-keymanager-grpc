@@ -22,24 +22,6 @@ data class DadosContaItauResponse(
             numeroConta = this.numero
         )
     }
-
-    fun toBcbRequest(novaChavePixDto: NovaChavePixDto): BcbRequest {
-        return BcbRequest(
-            keyType = KeyTypeEnum.by(novaChavePixDto.tipoChave!!),
-            key = novaChavePixDto.valorChave.toString(),
-            BankAccountRequest(
-                participant = this.instituicao.ispb,
-                branch = this.agencia,
-                accountNumber = this.numero,
-                accountType = AccountTypeEnum.by(TipoContaEnum.valueOf(this.tipo))
-            ),
-            OwnerRequest(
-                type = TypeEnum.NATURAL_PERSON,
-                name = this.titular.nome,
-                taxIdNumber = this.titular.cpf
-            )
-        )
-    }
 }
 
 data class TitularResponse(val nome: String, val cpf: String)

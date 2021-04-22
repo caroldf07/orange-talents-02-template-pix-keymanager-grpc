@@ -51,15 +51,13 @@ import javax.inject.Inject
 @MicronautTest(transactional = false)// Quando estamos trabalhando com servidor gRPC,
 // ele roda em uma thread separada e, portanto, não participa a cada chamada do teste complicando tanto a instância do banco como gerando falsos positivos
 internal class CriaNovaChavePixControllerTest(
-    val repository: ChavePixRepository,
-    val grpcClient: KeyManagerServiceBlockingStub
+    private val repository: ChavePixRepository,
+    private val grpcClient: KeyManagerServiceBlockingStub
 ) {
 
     companion object {
         val IDENTIFICADORITAU = UUID.randomUUID().toString()
     }
-
-    val TIPO_CONTA = TipoContaEnum.CONTA_CORRENTE.toString()
 
     @Inject
     lateinit var itauClient: ItauClient
@@ -104,7 +102,7 @@ internal class CriaNovaChavePixControllerTest(
         `when`(
             itauClient.validaCliente(
                 identificadorItau = IDENTIFICADORITAU,
-                tipo = TIPO_CONTA
+                tipo = TipoContaEnum.CONTA_CORRENTE.toString()
             )
         ).thenReturn(
             HttpResponse.ok(dadosContaItauResponse)
@@ -201,7 +199,12 @@ internal class CriaNovaChavePixControllerTest(
     fun `não deve adicionar nova chave quando não encontra o cliente no Itaú`() {
         //cenário
 
-        `when`(itauClient.validaCliente(identificadorItau = "1", tipo = TIPO_CONTA)).thenThrow(
+        `when`(
+            itauClient.validaCliente(
+                identificadorItau = "1",
+                tipo = TipoContaEnum.CONTA_CORRENTE.toString()
+            )
+        ).thenThrow(
             HttpClientResponseException::class.java
         )
 
@@ -219,48 +222,6 @@ internal class CriaNovaChavePixControllerTest(
         //validação
         assertEquals(Status.INVALID_ARGUMENT.code, erro.status.code)
         assertTrue(erro.message!!.contains("Cliente inexistente"))
-    }
-
-    @Test
-    @DisplayName("não deve adicionar nova chave quando já cadastrada no bcb")
-    fun `"não deve adicionar nova chave quando já cadastrada no bcb"`() {
-        //cenário
-
-        `when`(itauClient.validaCliente(IDENTIFICADORITAU, TIPO_CONTA)).thenReturn(
-            HttpResponse.ok(
-                dadosContaItauResponse
-            )
-        )
-
-        `when`(
-            bcbClient.cadastraChavePix(
-                BcbRequest(
-                    keyType = KeyTypeEnum.CPF,
-                    key = "06628726061",
-                    BankAccountRequest(
-                        participant = "60701190",
-                        branch = "0001",
-                        accountType = AccountTypeEnum.CACC,
-                        accountNumber = "212233"
-                    ),
-                    OwnerRequest(type = TypeEnum.NATURAL_PERSON, name = "Alberto Tavares", taxIdNumber = "06628726061")
-                )
-            )
-        ).thenReturn(HttpResponse.unprocessableEntity())
-        //ação
-        val response = assertThrows<StatusRuntimeException> {
-            grpcClient.criaChavePix(
-                newBuilder()
-                    .setIdentificadorItau(IDENTIFICADORITAU)
-                    .setTipoChave(TipoChave.CPF)
-                    .setValorChave("06628726061")
-                    .setTipoConta(TipoConta.CONTA_CORRENTE)
-                    .build()
-            )
-        }
-        //validação
-        assertEquals(Status.ALREADY_EXISTS.code, response.status.code)
-        assertTrue(response.message!!.contains("Chave já registrada"))
     }
 
     /*Aqui nós fabricamos o nosso client para que possamos testar a integração para a requisição no gRPC.

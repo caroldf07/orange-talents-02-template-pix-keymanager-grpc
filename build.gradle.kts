@@ -2,7 +2,7 @@ import com.google.protobuf.gradle.*
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.30"
-    id("org.jetbrains.kotlin.kapt") version "1.4.32"
+    id("org.jetbrains.kotlin.kapt") version "1.4.30"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.4.30"
     id("org.jetbrains.kotlin.plugin.jpa") version "1.4.30"
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -50,7 +50,6 @@ dependencies {
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.xml:micronaut-jackson-xml")
     runtimeOnly("ch.qos.logback:logback-classic")
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     testImplementation("org.hamcrest:hamcrest")
     testImplementation("org.mockito:mockito-core")
     testImplementation("io.micronaut:micronaut-http-client")
