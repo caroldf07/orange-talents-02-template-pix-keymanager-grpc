@@ -48,7 +48,7 @@ class CriaNovaChavePixController(
             chaveCriada = service.registra(novaChave)
             //1
         } catch (e: HttpClientResponseException) {
-            logger.error("Chave não encontrada")
+            logger.error("Cliente inexistente")
             throw ClienteInexistenteException("Cliente inexistente")
         }
         responseObserver.onNext(
