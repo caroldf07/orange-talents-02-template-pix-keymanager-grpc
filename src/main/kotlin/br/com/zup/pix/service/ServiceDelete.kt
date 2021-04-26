@@ -4,6 +4,7 @@ import br.com.zup.pix.compartilhado.exception.ChavePixNaoExistenteException
 import br.com.zup.pix.repository.ChavePixRepository
 import br.com.zup.sistemasExternos.client.BcbClient
 import br.com.zup.sistemasExternos.dominio.BcbDeleteRequest
+import io.micronaut.http.HttpStatus
 import io.micronaut.validation.Validated
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -30,10 +31,13 @@ class ServiceDelete(@Inject val repository: ChavePixRepository, @Inject val bcbC
 
         logger.info("Procura concluída")
 
-        bcbClient.deletaChavePix(
+        val bcbResponse = bcbClient.deletaChavePix(
             chaveInformada.valorChave,
             BcbDeleteRequest(key = chaveInformada.valorChave, participant = "60701190")
-        ).body() ?: throw IllegalStateException("Algo deu errado").also { logger.error("Erro na requisição") }
+        )
+        if (bcbResponse.status.code != HttpStatus.OK.code) {
+            throw IllegalStateException("Algo deu errado").also { logger.error("Erro na requisição") }
+        }
 
         repository.delete(chaveInformada)
 

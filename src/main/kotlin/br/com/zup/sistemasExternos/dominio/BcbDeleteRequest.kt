@@ -1,3 +1,3 @@
 package br.com.zup.sistemasExternos.dominio
 
-class BcbDeleteRequest(val key: String, val participant: String)
+data class BcbDeleteRequest(val key: String, val participant: String)

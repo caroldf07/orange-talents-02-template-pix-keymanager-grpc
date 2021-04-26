@@ -24,6 +24,7 @@ import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.AfterEach
@@ -37,7 +38,7 @@ import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
-@MicronautTest(transactional = false)
+@MicronautTest(transactional = false)// Quando estamos trabalhando com servidor gRPC, ele roda em uma thread separada e, portanto, não participa a cada chamada do teste o que pode trazer problemas, por isso desligamos o transactional
 internal class CriaNovaChavePixControllerTest(
     @Inject val grpcClient: KeyManagerServiceGrpc.KeyManagerServiceBlockingStub,
     @Inject val repository: ChavePixRepository
@@ -47,10 +48,8 @@ internal class CriaNovaChavePixControllerTest(
     * 1 - Happy Path - ok
     * 2 - Não pode cadastrar nova chave quando campo inválido - ok
     * 3 - Não pode cadastrar nova chave quando chave já cadastrada no banco de dados - ok
-    * 3 - Não pode cadastrar nova chave quando cliente não consta no Itaú - ok
-    * 4 - Não pode cadastrar nova chave quando chave já cadastrada no Bcb - ok
-    * 5 - Quando chave for do tipo aleatoria, não pode ter valor preenchido pelo usuário
-    * 6 - Quando chave for do tipo aleatoria, valor tem que ser devolvido pelo Bcb
+    * 4 - Não pode cadastrar nova chave quando cliente não consta no Itaú - ok
+    * 5 - Não pode cadastrar nova chave quando chave já cadastrada no Bcb - ok
     * */
 
 
@@ -198,9 +197,7 @@ internal class CriaNovaChavePixControllerTest(
                 identificadorItau = identificadorItau.toString(),
                 tipo = tipoConta.toString()
             )
-        ).thenReturn(
-            HttpResponse.notFound()
-        )
+        ).thenThrow(HttpClientResponseException::class.java)
         //ação
 
         val response = assertThrows<StatusRuntimeException> {
@@ -245,11 +242,16 @@ internal class CriaNovaChavePixControllerTest(
         assertTrue(response.message!!.contains("Falha na requisição"))
     }
 
-    //Criamos o client para testes
+    /*Aqui nós fabricamos o nosso client para que possamos testar a integração para a requisição no gRPC.
+A factory is a Singleton that produces one or many other bean implementations.
+Each produced bean is defined by method that is annotated with Bean*/
     @Factory
     class Clients {
+        /*Usamos o GrpcServerChannel.NAME, pois, a cada teste, o Micronaut muda a porta do servidor que ele usa, então
+        Como não temos como saber qual será a porta utilizada, nós usamos essa variável*/
         @Bean
-        fun blockingstub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): KeyManagerServiceGrpc.KeyManagerServiceBlockingStub? {
+        //Essa bean é exigida pela arquitetura do framework: https://docs.micronaut.io/latest/api/io/micronaut/context/annotation/Factory.html
+        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): KeyManagerServiceGrpc.KeyManagerServiceBlockingStub? {
             return KeyManagerServiceGrpc.newBlockingStub(channel)
         }
     }

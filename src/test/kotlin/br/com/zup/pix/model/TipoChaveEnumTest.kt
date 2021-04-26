@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test
 internal class TipoChaveEnumTest {
 
     /*
-    * 1 - happy path
-    * 2 - valor nulo ou vazio
-    * 3 - formato inválido
+    * 1 - happy path - ok
+    * 2 - valor nulo ou vazio - ok
+    * 3 - formato inválido - ok
     * 4 - formato válido, porém não é documento válido - cpf
     * */
 
